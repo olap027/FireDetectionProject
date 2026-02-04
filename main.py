@@ -3,12 +3,14 @@ import smtplib
 import time
 
 # --- CONFIGURATION ---
-PORT = 'COM5' 
+# Reminder: 1st Verify and Upload the codes on Arduino before run this code!!!!!
+PORT = 'COM5' #Verify what port display is working on arduino UNO
 EMAIL_SENDER = "bib.ola0927@gmail.com"
 EMAIL_RECEIVER = "pola92798@gmail.com"
 
 # ERROR 535 FIX: This MUST be the 16-character code from Google, NOT your regular password.
 # It usually looks like this: "abcd efgh ijkl mnop"
+# open 2-way verification then copy the 16-character key
 APP_PASSWORD = "sozx nruk vncw tdrh" 
 
 try:
