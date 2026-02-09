@@ -1,28 +1,54 @@
-const int flameSensor = A0; // Connect IR sensor to Analog Pin A0
-const int buzzerPin = 9;    // Buzzer on Pin 9
-int threshold = 200;        // Adjust this based on your sensor sensitivity
+#include <Wire.h>
+#include <Adafruit_MLX90614.h>
+
+Adafruit_MLX90614 mlx = Adafruit_MLX90614();
+
+const int buzzerPin = 9;     
+const int relayPin  = 7;     
+const int threshold = 50;    
 
 void setup() {
-  pinMode(flameSensor, INPUT);
+  pinMode(relayPin, OUTPUT);
+  digitalWrite(relayPin, LOW); // Force OFF immediately
+  
+  Serial.begin(9600);
+  mlx.begin();
   pinMode(buzzerPin, OUTPUT);
-  Serial.begin(9600); // Communication with Python
+
+  // Tell Python we are ready
+  Serial.println("SYSTEM_READY");
 }
 
 void loop() {
-  int sensorValue = analogRead(flameSensor);
+  float objTemp = mlx.readObjectTempC();
 
-  // IR sensors usually return a LOW value when fire is detected
-  if (sensorValue < threshold) { 
-    Serial.println("FIRE_DETECTED"); // Signal for Python
-    playSiren(); 
+  if (objTemp >= threshold) {
+    digitalWrite(relayPin, HIGH);  
+    
+    // Format: "ALERT:52.45"
+    Serial.print("ALERT:"); 
+    Serial.println(objTemp);
+    
+    playWailSiren();               
+  } else {
+    noTone(buzzerPin);
+    digitalWrite(relayPin, LOW);   
+    
+    // Send normal data for Python logs
+    Serial.print("NORMAL:");
+    Serial.println(objTemp);
+    
+    delay(1000); 
   }
-  delay(100);
 }
 
-void playSiren() {
-  for (int i = 0; i < 2; i++) {
-    for (int freq = 600; freq <= 1200; freq += 10) { tone(buzzerPin, freq); delay(2); }
-    for (int freq = 1200; freq >= 600; freq -= 10) { tone(buzzerPin, freq); delay(2); }
+void playWailSiren() {
+  for (int freq = 600; freq <= 1300; freq += 20) {
+    tone(buzzerPin, freq);
+    delay(5);
   }
-  noTone(buzzerPin);
+  for (int freq = 1300; freq >= 600; freq -= 20) {
+    tone(buzzerPin, freq);
+    delay(5);
+  }
 }
