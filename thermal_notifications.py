@@ -1,7 +1,7 @@
 import serial
 import smtplib
 import time
-
+    
 # --- CONFIGURATION ---
 PORT = 'COM5' 
 EMAIL_SENDER = "bib.ola0927@gmail.com"
